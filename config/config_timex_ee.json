@@ -1,0 +1,240 @@
+{
+  "model_name" : "bi_gru_cnn__dense_input",
+  "seed": 1337,
+  "batch_size": 2024,
+  "epochs": 200,
+  "single_class": false,
+  "binary": false,
+  "relations": [{
+    "types": ["tlink_aft", "tlink_bef", "tlink_beg", "tlink_beg_by", "tlink_dur", "tlink_end", "tlink_end_by", "tlink_i_aft", "tlink_i_bef", "tlink_ide", "tlink_inc", "tlink_is_inc", "tlink_sim"],
+    "from": ["action", "state", "aspectual", "i_state", "reporting", "perception", "light_predicate"],
+    "to": ["action", "state", "aspectual", "i_state", "reporting", "perception", "light_predicate"],
+    "allow_reversed": false,
+    "candidate_sentence_distance_limit": 0
+  }],
+  "relation_folding":{
+      "enabled": true,
+      "doubling": false,
+      "train_set_only": false,
+
+      "pairs": [
+        {
+          "reverse_arguments": true,
+          "symmetric": true,
+          "relations": ["tlink_aft", "tlink_bef"]
+        },{
+          "reverse_arguments": true,
+          "symmetric": true,
+          "relations": ["tlink_is_inc", "tlink_inc"]
+        },{
+          "reverse_arguments": true,
+          "symmetric": true,
+          "relations": ["tlink_i_aft", "tlink_i_bef"]
+        },{
+          "reverse_arguments": true,
+          "symmetric": true,
+          "relations": ["tlink_beg_by", "tlink_beg"]
+        },{
+          "reverse_arguments": true,
+          "symmetric": true,
+          "relations": ["tlink_end_by", "tlink_end"]
+        }
+
+       ,{
+          "reverse_arguments": true,
+          "symmetric": false,
+          "relations": ["tlink_dur", "tlink_inc"]
+        },{
+          "reverse_arguments": true,
+          "symmetric": false,
+          "relations": ["tlink_i_aft", "tlink_bef"]
+        },{
+          "reverse_arguments": true,
+          "symmetric": false,
+          "relations": ["tlink_beg", "tlink_inc"]
+        },{
+          "reverse_arguments": true,
+          "symmetric": false,
+          "relations": ["tlink_end", "tlink_inc"]
+        }
+
+      ]
+    },
+  "map_annotations_enabled": true,
+  "map_annotations":[
+    {
+      "from": "nam_liv_person.*",
+      "to": "nam_liv_person"
+    },
+     {
+      "from": "nam_adj.*",
+      "to": "nam_adj"
+    },{
+      "from": "nam_eve.*",
+      "to": "nam_eve"
+    },
+    {
+      "from": "nam_loc.*",
+      "to": "nam_loc"
+    },
+    {
+      "from": "nam_org.*",
+      "to": "nam_org"
+    },
+    {
+      "from": "nam_pro.*",
+      "to": "nam_pro"
+    },
+    {
+      "from": "nam_fac.*",
+      "to": "nam_fac"
+    }
+  ],
+  "maltparser": {
+    "jar": "vendor/maltparser/maltparser-1.9.1.jar",
+    "lib": "vendor/maltparser/lib",
+    "model": "vendor/maltparser/170608_PDBMalt.mco"
+  },
+  "use_dependency_parser": true,
+  "liner": {
+    "jar": "vendor/liner2/g419-liner2-cli-2.5-SNAPSHOT-all.jar",
+    "lib": "vendor/liner2/lib",
+    "config": "vendor/liner2/config/cfg_args.ini"
+  },
+  "w2v_embeddings": {
+    "orth": {
+      "path": "embeddings/orth/w2v_allwiki_nkjp300_100.model",
+      "enabled": false,
+      "attributes": [
+        "orth"
+      ],
+      "candidate_token": false
+    },
+    "lemma": {
+      "path": "/home/michal/dev/ipi/embeddings/lemma/w2v_allwiki_nkjpfull_300.model",
+      "enabled": false,
+      "attributes": [
+        "base"
+      ],
+      "candidate_token": false
+    },
+    "lemma.class": {
+      "path": "/home/michal/dev/ipi/embeddings/lemma.class/w2v_nkjp_kf_300_50i_5w.model",
+      "enabled": false,
+      "attributes": [
+        [
+          "base",
+          "class"
+        ]
+      ]
+    },
+    "lemma.ctag": {
+      "path": "/home/michal/dev/ipi/embeddings/lemma.ctag/w2v_nkjp_kf_300_50i_5w.model",
+      "enabled": false,
+      "attributes": [
+        [
+          "base",
+          "ctag"
+        ]
+      ]
+    },
+    "class": {
+      "path": "/home/michal/dev/ipi/embeddings/class/wiki_axw_st_30_25i_5w.model",
+      "enabled": false,
+      "attributes": [
+        "class"
+      ]
+    },
+    "ctag": {
+      "path": "/home/michal/dev/ipi/embeddings/ctag/w2v_nkjp_kf_300_50i_5w.model",
+      "enabled": false,
+      "attributes": [
+        "ctag"
+      ]
+    },
+    "hypernym-1": {
+      "path": "/home/michal/dev/ipi/embeddings/hypernym-1/w2v_nkjp_kf_100_25i_5w.model",
+      "enabled": false,
+      "attributes": [
+        "hypernym-1"
+      ]
+    },
+    "synonym": {
+      "path": "/home/michal/dev/ipi/embeddings/synonym/w2v_nkjp_kf_100_25i_5w.model",
+      "enabled": false,
+      "attributes": [
+        "synonym"
+      ]
+    }
+  },
+  "ft_embeddings": {
+    "orth": {
+      "path": "/home/michal/dev/ipi/embeddings/orth/fasttext_nkjp_kf_st_300_50i_5w.model",
+      "enabled": false,
+      "attributes": [
+        "orth"
+      ]
+    },
+    "lemma": {
+      "path": "/home/michal/dev/ipi/embeddings/lemma/w2v_nkjp_kf_300_50i_5w.model",
+      "enabled": false,
+      "attributes": [
+        "base"
+      ]
+    }
+  },
+  "indexed_embeddings": {
+    "annotation": false,
+    "dependency_bag": 5,
+    "dependency_path_from": false,
+    "dependency_path_to": false,
+    "token_type": false,
+    "from_candidate_relation_arg": 2,
+    "to_candidate_relation_arg": 2
+  },
+  "candidate_features": {
+    "enabled": true,
+    "relations": {
+      "type": ["ag", "ben", "loc"]
+    }
+  },
+  "candidate_rel_arg_indexed_embeddings": {
+    "annotation": 30,
+    "dependency_path_rel": 30
+  },
+
+  "position_embedding_dim": 3,
+  "validation_split": 0.2,
+  "balanced_split": false,
+  "validation_split_by_whole_docs": true,
+  "window_size": 5,
+  "input_dropout": 0.2,
+  "lstm_units": 18,
+  "lstm_units2": 18,
+  "dense_units": 50,
+  "dense_units2": 10,
+  "cnn_kernel_size": 2,
+  "cnn_filters": 16,
+  "pool_size": 2,
+
+  "dependency_path_short_as_bag": false,
+  "distance_feature": true,
+  "sentence_distance_feature": true,
+  "dependency_to_conjuct_in_diff_sents": true,
+
+  "lr": 0.001,
+  "lr_decay": 1e-6,
+  "no_duplicate_tokens_in_merged_seq": true,
+  "train_candidate_ratio": 0.3,
+
+
+  "db":{
+    "enabled": true,
+    "dbname": "deep",
+    "table_name": "arguments_timex_ee",
+    "user": "deep",
+    "host": "localhost",
+    "password": "haslo"
+  }
+
+}

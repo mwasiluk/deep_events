@@ -1,0 +1,52 @@
+{
+  "liner": {
+    "jar": "vendor/liner2/g419-liner2-cli-2.5-SNAPSHOT-all.jar",
+    "lib": "vendor/liner2/lib",
+    "configs": {
+      "ner": "vendor/liner2/liner25_model_ner_rev1/config-n82.ini",
+      "timex": "vendor/liner2/liner25_model_timex/4class_train-tune_select2multiBU-4class_evaltest/cfg.ini"
+    }
+  },
+  "maltparser": {
+    "jar": "vendor/maltparser/maltparser-1.9.1.jar",
+    "lib": "vendor/maltparser/lib",
+    "model": "vendor/maltparser/170608_PDBMalt.mco"
+  },
+  "concraft":{
+      "model": "vendor/concraft-model-nkjp1m-1.2.gz",
+      "bin": "concraft-pl",
+      "server_port": "10101",
+      "use_server": false
+  },
+  "corpus_get": "corpus-get",
+
+  "events_detection": {
+    "config": "config/detection/config2.json",
+    "model": "models/model_multi_class"
+  },
+  "arguments": {
+    "config": "config/config_args.json",
+    "model": "models/model_args"
+  },
+  "event_timex": {
+    "config": "config/config_timex_et.json",
+    "model": "models/model_timex_et"
+  },
+  "event_event": {
+    "config": "config/config_timex_ee.json",
+    "model": "models/model_relations_ee"
+  },
+  "default_pipe": "full",
+  "pipes":{
+    "detection":   ["liner.ner", "liner.timex", "events_detection"],
+    "arguments":   ["liner.ner", "liner.timex", "events_detection", "arguments"],
+    "event_timex": ["liner.ner", "liner.timex", "events_detection", "arguments", "event_timex"],
+    "event_event": ["liner.ner", "liner.timex", "events_detection", "arguments", "event_event"],
+    "full":        ["liner.ner", "liner.timex", "events_detection", "arguments", "event_timex", "event_event"],
+    "detection_no_prep":   ["events_detection"],
+    "arguments_no_prep":   ["events_detection", "arguments"],
+    "event_time_no_prep":  ["events_detection", "arguments", "event_timex"],
+    "event_event_no_prep": ["events_detection", "arguments", "event_event"],
+    "full_no_prep":        ["events_detection", "arguments", "event_timex", "event_event"]
+  }
+}

@@ -1,0 +1,9 @@
+orth
+base
+ctag
+class
+hypernym-1:{INI_PATH}/../data/plwordnet_2_0_2_pwn_format
+top4hyper-4:{INI_PATH}/../data/plwordnet_2_0_2_pwn_format
+prefix-4
+struct-P
+synonym:{INI_PATH}/../data/plwordnet_2_0_2_pwn_format

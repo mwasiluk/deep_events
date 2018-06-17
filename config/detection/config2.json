@@ -1,0 +1,130 @@
+{
+  "model_name" : "branched_bi_gru_lstm",
+  "seed": 1337,
+  "batch_size": 2024,
+  "epochs": 50,
+  "single_class": false,
+  "binary": false,
+  "relations": false,
+  "liner": {
+    "jar": "vendor/liner2/g419-liner2-cli-2.5-SNAPSHOT-all.jar",
+    "lib": "vendor/liner2/lib",
+    "config": "vendor/liner2/config/cfg.ini"
+  },
+  "maltparser": {
+    "jar": "vendor/maltparser/maltparser-1.9.1.jar",
+    "lib": "vendor/maltparser/lib",
+    "model": "vendor/maltparser/170608_PDBMalt.mco"
+  },
+  "use_dependency_parser": false,
+  "w2v_embeddings": {
+    "orth": {
+      "path": "embeddings/orth/w2v_allwiki_nkjpfull_300.model",
+      "enabled": true,
+      "attributes": [
+        "orth"
+      ]
+    },
+    "lemma": {
+      "path": "embeddings/lemma/w2v_allwiki_nkjpfull_300.model",
+      "enabled": true,
+      "attributes": [
+        "base", "synonym", "hypernym-1"
+      ]
+    },
+    "lemma.class": {
+      "path": "embeddings/lemma.class/w2v_nkjp_kf_300_50i_5w.model",
+      "enabled": false,
+      "attributes": [
+        [
+          "base",
+          "class"
+        ]
+      ]
+    },
+    "lemma.ctag": {
+      "path": "embeddings/lemma.ctag/w2v_nkjp_kf_300_50i_5w.model",
+      "enabled": false,
+      "attributes": [
+        [
+          "base",
+          "ctag"
+        ]
+      ]
+    },
+    "class": {
+      "path": "embeddings/class/wiki_axw_st_30_25i_5w.model",
+      "enabled": true,
+      "attributes": [
+        "class"
+      ]
+    },
+    "ctag": {
+      "path": "embeddings/ctag/w2v_nkjp_kf_300_50i_5w.model",
+      "enabled": false,
+      "attributes": [
+        "ctag"
+      ]
+    },
+    "hypernym-1": {
+      "path": "embeddings/hypernym-1/w2v_nkjp_kf_100_25i_5w.model",
+      "enabled": false,
+      "attributes": [
+        "hypernym-1"
+      ]
+    },
+    "synonym": {
+      "path": "embeddings/synonym/w2v_nkjp_kf_100_25i_5w.model",
+      "enabled": false,
+      "attributes": [
+        "synonym"
+      ]
+    }
+  },
+  "ft_embeddings": {
+    "orth": {
+      "path": "embeddings/orth/fasttext_nkjp_kf_st_300_50i_5w.model",
+      "enabled": false,
+      "attributes": [
+        "orth"
+      ]
+    },
+    "lemma": {
+      "path": "embeddings/lemma/w2v_nkjp_kf_300_50i_5w.model",
+      "enabled": false,
+      "attributes": [
+        "base"
+      ]
+    }
+  },
+  "indexed_embeddings": {
+    "struct-P": 5
+  },
+  "position_embedding_dim": 3,
+  "validation_split": 0.2,
+  "balanced_split": true,
+  "window_size": 1,
+  "input_dropout": 0.4,
+  "lstm_units": 14,
+  "lstm_units2": 14,
+  "dense_units": 0,
+
+  "dependency_path_short_as_bag": false,
+  "distance_feature": false,
+  "sentence_distance_feature": false,
+  "dependency_to_conjuct_in_diff_sents": false,
+  "train_candidate_ratio": 0.3,
+
+  "lr": 0.001,
+  "lr_decay": 1e-6,
+
+  "db":{
+    "enabled": true,
+    "dbname": "deep",
+    "table_name": "events_detection",
+    "user": "deep",
+    "host": "localhost",
+    "password": "haslo"
+  }
+
+}

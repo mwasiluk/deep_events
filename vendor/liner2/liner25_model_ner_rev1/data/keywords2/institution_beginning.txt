@@ -1,0 +1,9 @@
+departament
+komitet
+ministerstwo
+szpital
+uniwersytet
+wydział
+zakład
+instytut
+rada
