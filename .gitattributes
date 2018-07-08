@@ -36,3 +36,4 @@
 *.zip binary
 *.jar binary
 *.mco binary
+*.model binary

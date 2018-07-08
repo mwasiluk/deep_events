@@ -4,7 +4,7 @@
     "lib": "vendor/liner2/lib",
     "configs": {
       "ner": "vendor/liner2/liner25_model_ner_rev1/config-n82.ini",
-      "timex": "vendor/liner2/liner25_model_timex/4class_train-tune_select2multiBU-4class_evaltest/cfg.ini"
+      "timex": "vendor/liner2/timex2018/4class_timex3_cfg/cfg_timex3_4class_lval_val.ini"
     }
   },
   "maltparser": {
@@ -22,19 +22,19 @@
 
   "events_detection": {
     "config": "config/detection/config2.json",
-    "model": "models/model_multi_class"
+    "model": "models/model_multi_class.model"
   },
   "arguments": {
     "config": "config/config_args.json",
-    "model": "models/model_args"
+    "model": "models/model_args.model"
   },
   "event_timex": {
     "config": "config/config_timex_et.json",
-    "model": "models/model_timex_et"
+    "model": "models/model_timex_et.model"
   },
   "event_event": {
     "config": "config/config_timex_ee.json",
-    "model": "models/model_relations_ee"
+    "model": "models/model_relations_ee.model"
   },
   "default_pipe": "full",
   "pipes":{

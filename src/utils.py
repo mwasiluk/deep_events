@@ -4,7 +4,10 @@ import errno
 import os
 
 import numpy as np
+import re
 from sklearn.metrics import confusion_matrix, precision_recall_fscore_support, accuracy_score
+
+from relation import Relation
 
 
 def sliding_window(iterable, left, right, padding=None, step=1):
@@ -39,8 +42,8 @@ def sliding_window(iterable, left, right, padding=None, step=1):
         yield tuple(elements)
 
 
-def print_stats(y_true, y_pred, labels_index, binary):
-    if not binary:
+def print_stats(y_true, y_pred, labels_index, binary, map_argmax = True):
+    if not binary and map_argmax:
         y_true = map(lambda v: v.argmax(), y_true)
         y_pred = map(lambda v: v.argmax(), y_pred)
 
@@ -155,3 +158,47 @@ def merge_several_folds_results(data):
             a += np.array(data[i])
     a /= len(data)
     return a
+
+def get_annotation_position(a):
+    return (a.getSentence().getOrd(), a.getHead())
+
+
+def get_relation_position(r):
+    return (get_annotation_position(r.getAnnotationFrom()), get_annotation_position(r.getAnnotationTo()))
+
+def create_relation_dictionary(config, document, rel_dict=None):
+    if not rel_dict:
+        rel_dict = {}
+
+    for r in document.getRelations().getRelations():
+        rel_type = r.getType()
+
+        matching_rel_configs = [rc for rc in config['relations'] if rel_type in rc["types"]]
+        if not len(matching_rel_configs):
+            continue
+        annotation_from = r.getAnnotationFrom()
+        annotation_to = r.getAnnotationTo()
+
+        for rel_conf in matching_rel_configs:
+
+            if (any(re.match(_from, annotation_from.getType()) for _from in rel_conf['from']) and any(re.match(_to, annotation_to.getType()) for _to in rel_conf['to'])) \
+                    or ("allow_reversed" in rel_conf and rel_conf["allow_reversed"] and any(re.match(_from, annotation_from.getType()) for _from in rel_conf['to']) and any(
+                        re.match(_to, annotation_to.getType()) for _to in rel_conf['from'])):
+                relation_position = get_relation_position(r)
+                # print(rel_type, annotation_from.getType(), annotation_to.getType())
+                # if relation_position in rel_dict:
+                #     print(relation_position, "already in dict", rel_type, rel_dict[relation_position].getType())
+
+                rel_dict[relation_position] = Relation(rel_type, annotation_from, annotation_to)
+                continue
+
+
+                # if any(
+                #         any(re.match(_from, annotation_from.getType()) for _from in rel_conf['from']) and
+                #         any(re.match(_to, annotation_to.getType()) for _to in rel_conf['to'])
+                #         for rel_conf in matching_rel_configs):
+                #     relation_position = self.get_relation_position(r)
+                #     true_rel_dict[relation_position] = Relation(rel_type, annotation_from, annotation_to)
+
+    return rel_dict
+

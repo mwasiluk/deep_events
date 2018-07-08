@@ -24,7 +24,7 @@ from models import branched_bi_gru_lstm, bi_gru, bi_gru_cnn, bi_gru_2cnn, branch
 from liner2 import create_annotation, get_writer, create_relation
 
 
-from utils import print_stats, mkdir_p, merge_several_folds_results, print_p_r_f, sliding_window
+from utils import print_stats, mkdir_p, merge_several_folds_results, print_p_r_f, sliding_window, create_relation_dictionary
 from db import DatabaseMng
 
 IRRELEVANT_CLASS = 'n/a'
@@ -113,12 +113,10 @@ def get_net_model(config):
 def run_pipe(config, data, model_file, output_file, output_format, db):
 
     print("pipe mode")
-    model = keras.models.load_model(model_file)
-    if debug:
-        model.summary()
+
 
     data.load_indexed_features(model_file + '_ft.pickle')
-    data.load_embeddings()
+    data.init()
     reader = data.get_reader()
 
     mkdir_p(os.path.dirname(output_file))
@@ -143,7 +141,9 @@ def run_pipe(config, data, model_file, output_file, output_format, db):
 
 
     net_model = get_net_model(config)
-
+    model = keras.models.load_model(model_file)
+    if debug:
+        model.summary()
     while True:
         document = reader.nextDocument()
         if document is None:
@@ -185,7 +185,9 @@ def run_pipe(config, data, model_file, output_file, output_format, db):
                 # print(l,from_token, to_token)
                 annotation_from = [a for a in sentences.get(from_token['$sentence_index']).getChunksAt(from_token['$token_index']) if a.getId() == from_token['$annotation_id']][0]
                 annotation_to = [a for a in sentences.get(to_token['$sentence_index']).getChunksAt(to_token['$token_index']) if a.getId() == to_token['$annotation_id']][0]
-                # print(l, from_token[u'orth'], to_token[u'orth'])
+
+                if debug:
+                    print(l, (from_token[u'orth'], from_token['$sentence_index']), (to_token[u'orth'], to_token['$sentence_index']))
 
                 relation = create_relation(annotation_from, annotation_to, l)
                 document.addRelation(relation)
@@ -203,7 +205,8 @@ def run_pipe(config, data, model_file, output_file, output_format, db):
                 sentence_index = t['$sentence_index']
                 sentence = sentences.get(sentence_index)
                 annotation = create_annotation(token_index, token_index, l, sentence)
-                # print(l, t[u'orth'], token_index, sentence_index)
+                if debug:
+                    print(l, t[u'orth'], token_index, sentence_index)
                 sentence.addChunk(annotation)
 
 
@@ -365,6 +368,7 @@ def run_train(config, data, model_file, db=None):
         db.save_result(config, acc, p_r_f, model_summary, data.num_classes, tr["class_weights"], labels_index=data.labels_index,
                        model_id=model_file, p_r_f_avg_micro = p_r_f_avg_micro, p_r_f_avg_weighted = p_r_f_avg_weighted)
 
+
 def train_model(model, config, training_data):
     net_model = get_net_model(config)
     print('Training model.')
@@ -425,6 +429,89 @@ def train_model(model, config, training_data):
     return {
         "class_weights": class_w
     }
+
+
+def run_eval(config, tagged_files = None, reference_files = None, input_format="batch:cclrel"):
+
+    #TODO handle non relation mode
+    from liner2 import Liner2, start_jvm, create_relation
+
+    start_jvm([config['liner']['jar']], [config['liner']['lib']])
+    liner = Liner2(config['liner']['config'])
+    annotation_types = liner.options.getTypes()
+
+    types = set()
+
+
+    irrelevant_class = 'n/a'
+    labels_index = {}
+    labels_index[irrelevant_class] = 0
+
+
+    def get_label_index(label):
+        if label in labels_index:
+            label_index = labels_index[label]
+        else:
+            label_index = len(labels_index)
+            labels_index[label] = label_index
+        return label_index
+
+    for rel_conf in config['relations']:
+        for t in rel_conf['types']:
+            types.add(t)
+            get_label_index(t)
+
+    print(types)
+    print(labels_index)
+    rel_dicts_tagged = ger_rel_dicts(config, input_format, liner, tagged_files)
+    rel_dicts_ref = ger_rel_dicts(config, input_format, liner, reference_files)
+
+    y_true = []
+    y_pred = []
+    for doc_idx in range(len(rel_dicts_ref)):
+        rel_dict_ref = rel_dicts_ref[doc_idx]
+        rel_dict_tagged = rel_dicts_tagged[doc_idx]
+
+        for true_r_pos in rel_dict_ref:
+            true_r = rel_dict_ref[true_r_pos]
+            true_label = true_r.getType()
+
+
+            pred_label = irrelevant_class
+            if true_r_pos in rel_dict_tagged:
+                tagged_r = rel_dict_tagged[true_r_pos]
+                pred_label = tagged_r.getType()
+
+
+            y_true.append(get_label_index(true_label))
+            y_pred.append(get_label_index(pred_label))
+
+
+        for pred_r_pos in rel_dict_tagged:
+
+            if pred_r_pos in rel_dict_ref:
+                continue
+            pred_r = rel_dict_tagged[pred_r_pos]
+            pred_label = pred_r.getType()
+            true_label = irrelevant_class
+            y_true.append(get_label_index(true_label))
+            y_pred.append(get_label_index(pred_label))
+
+    from sklearn.metrics import confusion_matrix, precision_recall_fscore_support, accuracy_score
+
+    print_stats(y_true, y_pred, labels_index, False, False)
+
+def ger_rel_dicts(config, input_format, liner, tagged_files):
+    reader = liner.get_reader(tagged_files, input_format)
+    rel_dicts = []
+    while True:
+        document = reader.nextDocument()
+        if document is None:
+            break
+
+        rel_dicts.append(create_relation_dictionary(config, document))
+    return rel_dicts
+
 
 def reset_weights(model):
     session = K.get_session()

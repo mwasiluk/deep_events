@@ -55,7 +55,7 @@
   },
   "w2v_embeddings": {
     "orth": {
-      "path": "/home/michal/dev/ipi/embeddings/orth/w2v_allwiki_nkjpfull_300.model",
+      "path": "embeddings/orth/w2v_allwiki_nkjpfull_300.model",
       "enabled": true,
       "attributes": [
         "orth"

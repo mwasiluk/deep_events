@@ -74,6 +74,7 @@ class Data(object):
 
         if self.relations_mode:
             self.init_folding_map()
+            self.init_label_indexes()
 
         self.sliding_window_limited_to_sentence = False
 
@@ -95,26 +96,31 @@ class Data(object):
 
         seq_dict = self.load_token_sequences(indexed_features_file)
         sequences = seq_dict['sequences']
-
+        self.sequences = sequences
 
         max_sentence_len = seq_dict['max_sentence_len']
+        self.init()
+
+
+
+    def init(self):
         self.num_classes = len(self.labels_index)
 
         if self.debug:
-            print('Found %s classes.' %  self.num_classes)
-            print('max_sentence_len %s.' % max_sentence_len)
+            print('Found %s classes.' % self.num_classes)
 
         self.load_embeddings()
         if self.debug:
             print('after load_embeddings')
 
-        self.sequences = sequences
-
-        self.input_dims = [self.input_dim, self.input_dim_cand]
+        self.init_input_dims()
 
         gc.collect()
         if self.debug:
             print('data loaded and mapped')
+
+    def init_input_dims(self):
+        self.input_dims = [self.input_dim, self.input_dim_cand]
 
     def get_label(self, seq):
         return self.get_label_from_idx(seq[0])
@@ -394,7 +400,7 @@ class Data(object):
                     nm_count = 0
 
                 all_not_marched[type] = nm_count + 1
-
+                continue
 
 
             x_val_test.append(self.get_vector_sequence(seq))
@@ -498,11 +504,10 @@ class Data(object):
         self.folds = folds
         n_folds = len(folds)
 
-
-        self.input_dims = [self.input_dim, self.input_dim_cand]
+        self.init_input_dims()
 
         if len(self.labels_index) <= 1:
-            self.init_rel_types_label_indexes()
+            self.init_label_indexes()
 
             self.num_classes = len(self.labels_index)
 
@@ -559,7 +564,7 @@ class Data(object):
 
             self.num_classes = len(self.labels_index)
             self.load_embeddings()
-            self.input_dims = [self.input_dim, self.input_dim_cand]
+            self.init_input_dims()
 
 
             print('after load_embeddings')
@@ -673,7 +678,7 @@ class Data(object):
                         nm_count = 0
 
                     all_not_marched[type] = nm_count + 1
-
+                    continue
 
 
                 x_val_test.append(self.get_vector_sequence(seq))
@@ -847,7 +852,7 @@ class Data(object):
 
 
     def get_annotation_position(self, a):
-        return (a.getSentence().getOrd(), a.getHead())
+        return (a.getSentence().getOrd(), a.getHead().intValue())
 
 
     def get_relation_position(self, r):
@@ -1230,8 +1235,8 @@ class Data(object):
                     if any(re.match(_from, a.getType()) for _from in rel_conf['to']):
                         to_candidates.append(a)
 
-            if self.debug:
-                print(rel_conf['types'], len(from_candidates), len(to_candidates), 'use_candidate_ratio', use_candidate_ratio)
+            # if self.debug:
+            #     print(rel_conf['types'], len(from_candidates), len(to_candidates), 'use_candidate_ratio', use_candidate_ratio)
 
             sentences = document.getSentences()
 
@@ -1413,7 +1418,7 @@ class Data(object):
 
         self.doc_temp = {}
 
-        if len(not_matched_rel_count_dict):
+        if self.debug and len(not_matched_rel_count_dict):
             print('not matched relations:')
             print(not_matched_rel_count_dict)
 
@@ -1704,9 +1709,9 @@ class Data(object):
                         continue
                     relations_to_add.append((target_position, new_rel))
                 else:
-                    true_rel_dict[target_position] = new_rel
                     if target_position != position:
                         del true_rel_dict[position]
+                    true_rel_dict[target_position] = new_rel
         for pr in relations_to_add:
             true_rel_dict[pr[0]] = pr[1]
         for pr in relations_to_remove:

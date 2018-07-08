@@ -10,12 +10,12 @@ def start_jvm(jars, libs):
 class Liner2(object):
     def __init__(self, liner_ini, tagset='nkjp'):
 
-        ChunkerFactory = JClass("g419.liner2.api.chunker.factory.ChunkerFactory")
-        self.options = JClass("g419.liner2.api.LinerOptions")()
+        ChunkerFactory = JClass("g419.liner2.core.chunker.factory.ChunkerFactory")
+        self.options = JClass("g419.liner2.core.LinerOptions")()
         self.options.parseModelIni(liner_ini)
         #self.chunkerManager = ChunkerFactory.loadChunkers(self.options)
         if not self.options.features.isEmpty():
-            self.featureGen = JClass("g419.liner2.api.features.TokenFeatureGenerator")(self.options.features)
+            self.featureGen = JClass("g419.liner2.core.features.TokenFeatureGenerator")(self.options.features)
         else:
             self.featureGen = None
 
@@ -27,7 +27,7 @@ class Liner2(object):
         return JClass("g419.corpus.io.reader.BatchReader")(JClass("org.apache.commons.io.IOUtils").toInputStream(input_data), root, input_format)
 
     def get_token_feature_generator(self):
-        return JClass("g419.liner2.api.features.TokenFeatureGenerator")(self.options.features)
+        return JClass("g419.liner2.core.features.TokenFeatureGenerator")(self.options.features)
 
     def add_chunker(self, name, description):
         self.chunkerManager.addChunker(name, description)
@@ -103,13 +103,13 @@ class Liner2(object):
 class LinerWordnet(object):
     def __init__(self, path, liner_jar, liner_lib):
         start_jvm(liner_jar, liner_lib)
-        self.database = JClass("g419.liner2.api.features.tokens.WordnetLoader")(path)
+        self.database = JClass("g419.liner2.core.features.tokens.WordnetLoader")(path)
 
     def get_hypernym_feature(self, name, distance):
-        return JClass("g419.liner2.api.features.tokens.HypernymFeature")(name, self.database, distance)
+        return JClass("g419.liner2.core.features.tokens.HypernymFeature")(name, self.database, distance)
 
     def get_synonym_feature(self):
-        return JClass("g419.liner2.api.features.tokens.SynonymFeature")("synonym", self.database)
+        return JClass("g419.liner2.core.features.tokens.SynonymFeature")("synonym", self.database)
 
 
 def create_annotation(begin, end, type, sentence):
